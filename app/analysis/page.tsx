@@ -1,13 +1,14 @@
 "use client";
-import { useSearchParams } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { Suspense } from "react";
 
 function AnalysisResults() {
-  const searchParams = useSearchParams();
-  const raw = searchParams.get("results");
+  const [results, setResults] = useState<any[]>([]);
 
-  const results = raw ? JSON.parse(decodeURIComponent(raw)) : [];
+  useEffect(() => {
+    const stored = sessionStorage.getItem("perceptResults");
+    if (stored) setResults(JSON.parse(stored));
+  }, []);
 
   return (
     <main className="min-h-screen bg-[#020817] text-white">
@@ -30,7 +31,6 @@ function AnalysisResults() {
         </p>
       </section>
 
-      {/* Overall summary */}
       <section className="max-w-5xl mx-auto px-8 pb-10">
         <div className="grid grid-cols-3 gap-4">
           <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-6">
@@ -38,8 +38,10 @@ function AnalysisResults() {
             <p className="text-4xl font-medium text-blue-400">
               {results.length > 0
                 ? Math.round(
-                    results.reduce((a: number, r: any) => a + r.attention, 0) /
-                      results.length,
+                    results.reduce(
+                      (a: number, r: any) => a + (r.attention ?? 0),
+                      0,
+                    ) / results.length,
                   )
                 : 0}
               <span className="text-lg text-white/25">/100</span>
@@ -54,7 +56,7 @@ function AnalysisResults() {
               {results.length > 0
                 ? Math.round(
                     results.reduce(
-                      (a: number, r: any) => a + r.comprehension,
+                      (a: number, r: any) => a + (r.comprehension ?? 0),
                       0,
                     ) / results.length,
                   )
@@ -75,7 +77,6 @@ function AnalysisResults() {
         </div>
       </section>
 
-      {/* Per slide */}
       <section className="max-w-5xl mx-auto px-8 pb-32 space-y-6">
         <p className="text-xs text-white/30 uppercase tracking-widest">
           Per slide breakdown

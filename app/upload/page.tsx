@@ -48,8 +48,8 @@ export default function UploadPage() {
           return res.json();
         }),
       );
-      const encoded = encodeURIComponent(JSON.stringify(results));
-      router.push(`/analysis?results=${encoded}`);
+      sessionStorage.setItem("perceptResults", JSON.stringify(results));
+      router.push("/analysis");
     } catch {
       setError("Analysis failed. Please try again.");
     } finally {
@@ -141,7 +141,6 @@ export default function UploadPage() {
             ))}
           </div>
 
-          {/* Analyze button — only shows after slides are visible */}
           <div className="mt-10 text-center">
             <p className="text-white/30 text-sm mb-4">
               Slides look good? Run the brain analysis.

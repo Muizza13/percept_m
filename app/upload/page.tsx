@@ -49,6 +49,7 @@ export default function UploadPage() {
         }),
       );
       sessionStorage.setItem("perceptResults", JSON.stringify(results));
+      sessionStorage.setItem("perceptSlides", JSON.stringify(slides));
       router.push("/analysis");
     } catch {
       setError("Analysis failed. Please try again.");

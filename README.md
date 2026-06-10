@@ -1,36 +1,39 @@
 # Percept
 
-> Understand how your slides hit the brain.
+Percept is a web application that evaluates presentation slides on three cognitive dimensions — **attention**, **comprehension**, and **cognitive load** — using a neural encoding model trained on fMRI data. Users upload a `.ppt`, `.pptx`, or `.pdf` file; the application converts each slide into an image, submits it to the inference backend, and presents per-slide and aggregate scores.
 
-Percept is a web app that scores presentation slides on **attention**, **comprehension**, and **cognitive load** using a neural encoding model trained on fMRI data. Upload a `.ppt`, `.pptx`, or `.pdf`, and Percept converts every slide to an image, runs each one through the model, and returns per-slide cognitive scores.
-
-Built as a final-year CSE project at the **Islamic University of Science and Technology, Kashmir** (Batch 2023–27).
+Developed as a final-year project in the Department of Computer Science and Engineering, Islamic University of Science and Technology, Kashmir (Batch 2023–27).
 
 ---
 
-## What it does
+## Overview
 
-1. You drop a presentation file on the upload page.
-2. The server converts the file to PNG slides using LibreOffice + Poppler.
-3. Each slide is sent to a Python backend hosted on a Hugging Face Space.
-4. The backend returns `{ attention, comprehension, cognitiveLoad }` per slide.
-5. The analysis page renders per-slide scores plus aggregate averages.
+The application implements the following pipeline:
 
-## Tech stack
+1. The user uploads a presentation through the browser.
+2. The server converts the file into per-slide PNG images using LibreOffice and Poppler.
+3. Each slide is forwarded to a Python inference service deployed on a Hugging Face Space.
+4. The service returns a JSON payload containing `attention`, `comprehension`, and `cognitiveLoad` for the slide.
+5. The results are aggregated and rendered on the analysis page.
 
-**Frontend / API layer (this repo)**
+## Technology Stack
+
+**Application layer (this repository)**
+
 - Next.js 16 (App Router) on React 19
 - TypeScript
-- Tailwind CSS v4 + shadcn/ui + Radix
+- Tailwind CSS v4, shadcn/ui, Radix UI
 - Framer Motion, lucide-react, react-dropzone
 
 **Slide preprocessing**
-- LibreOffice (`soffice`) — converts PPT/PPTX → PDF
-- Poppler (`pdftoppm`) — rasterises PDF pages → PNG
 
-**Inference backend** (separate repo, deployed as a Hugging Face Space)
-- Python · FastAPI
-- TRIBE v2 · SigLIP · Grad-CAM
+- LibreOffice (`soffice`) — converts PPT/PPTX to PDF
+- Poppler (`pdftoppm`) — rasterises PDF pages into PNG
+
+**Inference backend** (maintained in a separate repository and deployed as a Hugging Face Space)
+
+- Python with FastAPI
+- TRIBE v2, SigLIP, Grad-CAM
 - Endpoint: `https://muizza13-percept-api.hf.space/analyze`
 
 ## Architecture
@@ -54,13 +57,13 @@ Built as a final-year CSE project at the **Islamic University of Science and Tec
 +----------------+
 ```
 
-The Next.js routes act as a thin backend-for-frontend: `/api/convert` handles file conversion and `/api/analyze` proxies to the HF Space.
+The Next.js route handlers serve as a thin backend-for-frontend layer: `/api/convert` performs file conversion, and `/api/analyze` proxies requests to the inference service.
 
-## Getting started
+## Getting Started
 
 ### Prerequisites
 
-You need **LibreOffice** and **Poppler** installed locally for slide conversion to work.
+The slide conversion pipeline requires **LibreOffice** and **Poppler** to be installed locally.
 
 ```bash
 # macOS
@@ -71,74 +74,75 @@ brew install poppler
 sudo apt-get install libreoffice poppler-utils
 ```
 
-Node.js 20+ is required.
+Node.js 20 or later is required.
 
-### Install & run
+### Installation
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+The development server is available at [http://localhost:3000](http://localhost:3000).
 
 ### Scripts
 
-| Command         | What it does                       |
-| --------------- | ---------------------------------- |
-| `npm run dev`   | Start the Next.js dev server       |
-| `npm run build` | Production build                   |
-| `npm run start` | Run the built app                  |
-| `npm run lint`  | Run ESLint                         |
+| Command         | Description                              |
+| --------------- | ---------------------------------------- |
+| `npm run dev`   | Starts the Next.js development server    |
+| `npm run build` | Produces a production build              |
+| `npm run start` | Runs the production build                |
+| `npm run lint`  | Runs ESLint                              |
 
-### Environment variables
+### Environment Variables
 
-Currently the analyze route calls a public HF Space, so no key is required. The repo still references a legacy `HUGGINGFACE_API_KEY` via `lib/hf.ts` for future direct calls; you can leave it unset for now. Add a `.env.local` if you do need it:
+The current implementation calls a public Hugging Face Space, and therefore does not require an API key. A `HUGGINGFACE_API_KEY` reference is retained in `lib/hf.ts` for future direct calls to the Hugging Face Inference API. To configure it, create a `.env.local` file at the project root:
 
 ```
 HUGGINGFACE_API_KEY=hf_...
 ```
 
-## Project structure
+## Project Structure
 
 ```
 app/
   page.tsx              Landing page
-  about/page.tsx        About / team page
-  upload/page.tsx       File upload + slide preview
-  analysis/page.tsx     Per-slide scores and averages
+  about/page.tsx        About and team page
+  upload/page.tsx       File upload and slide preview
+  analysis/page.tsx     Per-slide scores and aggregate metrics
   api/
-    convert/route.ts    PPT/PDF -> PNG via soffice + pdftoppm
-    analyze/route.ts    Forwards a slide PNG to the HF Space
+    convert/route.ts    PPT/PDF to PNG conversion via soffice and pdftoppm
+    analyze/route.ts    Forwards a slide image to the inference backend
 components/
   navbar.tsx
   upload-zone.tsx
   ui/                   shadcn primitives (button, card, skeleton)
 lib/
   hf.ts                 Hugging Face client placeholder
-  utils.ts              cn() helper
+  utils.ts              Utility helpers
 ```
 
-## Status
+## Project Status
 
-This is an early build. Things that work end-to-end:
+The following components are functional end-to-end:
 
-- PPT / PPTX / PDF -> per-slide PNG extraction
-- Calling the HF Space backend and rendering attention / comprehension / cognitive-load scores
-- Aggregate averages and a per-slide breakdown UI
+- Conversion of PPT, PPTX, and PDF files into per-slide PNG images
+- Communication with the Hugging Face Space backend
+- Rendering of attention, comprehension, and cognitive-load scores
+- Aggregate averages and a per-slide breakdown view
 
-Things still on the roadmap:
+Planned work includes:
 
-- Grad-CAM heatmap overlay on each slide
-- LLM-generated plain-English suggestions per slide
-- Persistent history (Supabase)
+- Grad-CAM heatmap overlays on each slide
+- LLM-generated, plain-language suggestions for slide improvement
+- Persistent history and user accounts (Supabase)
 
 ## Team
 
-| | |
-|---|---|
-| Salik Yousuf Shigan | Builder · IUST CSE 2023–27 |
-| Muizza Muayqeeb Akram | Builder · IUST CSE 2023–27 |
-| Shakeeb Arslan Naqash | Builder · IUST CSE 2023–27 |
+| Name                    | Role                              |
+| ----------------------- | --------------------------------- |
+| Salik Yousuf Shigan     | Developer · IUST CSE 2023–27      |
+| Muizza Muayqeeb Akram   | Developer · IUST CSE 2023–27      |
+| Shakeeb Arslan Naqash   | Developer · IUST CSE 2023–27      |
 
-**Supervisor:** Dr. Sahil Sholla, Department of Computer Science, IUST Kashmir.
+**Supervisor:** Dr. Sahil Sholla, Department of Computer Science and Engineering, Islamic University of Science and Technology, Kashmir.

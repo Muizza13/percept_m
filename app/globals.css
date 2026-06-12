@@ -128,40 +128,124 @@
     @apply font-sans;
   }
 }
-.glow-blue {
-  box-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
+
+/* ---------------------------------------------------------------------------
+   Percept — green SaaS theme tokens
+--------------------------------------------------------------------------- */
+:root {
+  --p-ink: #0b1711; /* deepest background */
+  --p-forest: #14271c; /* hero base */
+  --p-forest-2: #1b3527; /* hero raised */
+  --p-line: rgba(173, 222, 178, 0.12);
+  --p-lime: #c7f04b; /* primary accent */
+  --p-lime-soft: #aee07a;
+  --p-cream: #f3f1e7; /* light section */
+  --p-cream-2: #e9e6d8;
 }
 
-.glow-violet {
-  box-shadow: 0 0 40px rgba(139, 92, 246, 0.3);
+.font-display {
+  font-family: var(--font-sora), system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+.font-body {
+  font-family: var(--font-jakarta), system-ui, sans-serif;
 }
 
-@keyframes pulse-glow {
+/* Blueprint grid used behind the hero */
+.bg-blueprint {
+  background-image:
+    linear-gradient(var(--p-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--p-line) 1px, transparent 1px);
+  background-size: 38px 38px;
+  -webkit-mask-image: radial-gradient(
+    ellipse 70% 70% at 50% 40%,
+    #000 35%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 70% 70% at 50% 40%,
+    #000 35%,
+    transparent 100%
+  );
+}
+
+/* Radial spotlight glow */
+.glow-lime {
+  background: radial-gradient(
+    closest-side,
+    rgba(199, 240, 75, 0.16),
+    transparent
+  );
+}
+
+.glow-emerald {
+  box-shadow:
+    0 0 0 1px rgba(199, 240, 75, 0.08),
+    0 30px 80px -20px rgba(0, 0, 0, 0.7);
+}
+
+@keyframes p-float {
   0%,
   100% {
-    opacity: 0.4;
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+.p-float {
+  animation: p-float 6s ease-in-out infinite;
+}
+
+@keyframes p-pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
     transform: scale(1);
   }
   50% {
-    opacity: 0.8;
-    transform: scale(1.05);
+    opacity: 0.45;
+    transform: scale(0.8);
   }
 }
-
-.brain-pulse {
-  animation: pulse-glow 3s ease-in-out infinite;
+.p-pulse-dot {
+  animation: p-pulse-dot 1.8s ease-in-out infinite;
 }
 
-@keyframes float {
-  0%,
+@keyframes p-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.p-rise {
+  animation: p-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes p-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.p-marquee {
+  animation: p-marquee 28s linear infinite;
+}
+
+@keyframes p-sweep {
+  0% {
+    transform: translateY(-120%);
+  }
   100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-12px);
+    transform: translateY(220%);
   }
 }
-
-.float {
-  animation: float 4s ease-in-out infinite;
+.p-sweep {
+  animation: p-sweep 3.4s ease-in-out infinite;
 }

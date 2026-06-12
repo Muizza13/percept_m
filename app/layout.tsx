@@ -7,12 +7,16 @@ const sora = Sora({
   subsets: ["latin"],
   variable: "--font-sora",
   weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+  fallback: ["ui-sans-serif", "system-ui", "sans-serif"],
 });
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-jakarta",
   weight: ["400", "500", "600", "700"],
+  display: "swap",
+  fallback: ["ui-sans-serif", "system-ui", "sans-serif"],
 });
 
 export const metadata: Metadata = {

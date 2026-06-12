@@ -6,7 +6,7 @@ import "./globals.css";
 const sora = Sora({
   subsets: ["latin"],
   variable: "--font-sora",
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "600", "700"],
   display: "swap",
   fallback: ["ui-sans-serif", "system-ui", "sans-serif"],
 });
@@ -14,7 +14,7 @@ const sora = Sora({
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-jakarta",
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "600", "700"],
   display: "swap",
   fallback: ["ui-sans-serif", "system-ui", "sans-serif"],
 });

@@ -1,12 +1,14 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+import { Logo } from "@/components/logo";
 
 const links = [
-  { label: "Product", href: "#product" },
-  { label: "The Science", href: "#science" },
-  { label: "How it works", href: "#how" },
-  { label: "Pricing", href: "#pricing" },
+  { label: "Product", href: "/#product" },
+  { label: "The Science", href: "/#science" },
+  { label: "How it works", href: "/#how" },
+  { label: "Team", href: "/#team" },
 ];
 
 export function Navbar() {
@@ -22,11 +24,12 @@ export function Navbar() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4">
       <nav
-        className={`font-body flex w-full max-w-6xl items-center justify-between rounded-full border px-3 py-2.5 transition-all duration-300 ${
+        className={cn(
+          "font-body flex w-full max-w-6xl items-center justify-between rounded-full border px-3 py-2.5 transition-all duration-300",
           scrolled
             ? "border-white/10 bg-[#0d1a13]/85 backdrop-blur-xl shadow-[0_10px_40px_-12px_rgba(0,0,0,0.6)]"
-            : "border-white/[0.06] bg-white/[0.03] backdrop-blur-md"
-        }`}
+            : "border-white/[0.06] bg-white/[0.03] backdrop-blur-md",
+        )}
       >
         <Link href="/" className="flex items-center gap-2.5 pl-2">
           <Logo />
@@ -52,7 +55,7 @@ export function Navbar() {
             href="/about"
             className="hidden rounded-full px-4 py-2 text-[13.5px] text-white/70 transition hover:text-white sm:block"
           >
-            Sign in
+            About
           </Link>
           <Link
             href="/upload"
@@ -63,21 +66,5 @@ export function Navbar() {
         </div>
       </nav>
     </header>
-  );
-}
-
-function Logo() {
-  return (
-    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#c7f04b]">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M3 12c3-7 15-7 18 0-3 7-15 7-18 0Z"
-          stroke="#10231a"
-          strokeWidth="1.8"
-          strokeLinejoin="round"
-        />
-        <circle cx="12" cy="12" r="3.1" fill="#10231a" />
-      </svg>
-    </span>
   );
 }

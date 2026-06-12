@@ -1,61 +1,55 @@
 import Link from "next/link";
+import { supervisor, team } from "@/lib/team";
 
-const team = [
-  {
-    name: "Salik Yousuf Shigan",
-    role: "Builder",
-    desc: "Co-built Percept as part of the CSE final year project at IUST Kashmir.",
-    initials: "SY",
-    color: "bg-blue-500/10 border-blue-500/20 text-blue-400",
-  },
-  {
-    name: "Muizza Muayqeeb Akram",
-    role: "Builder",
-    desc: "Co-built Percept as part of the CSE final year project at IUST Kashmir.",
-    initials: "MM",
-    color: "bg-violet-500/10 border-violet-500/20 text-violet-400",
-  },
-  {
-    name: "Shakeeb Arslan Naqash",
-    role: "Builder",
-    desc: "Co-built Percept as part of the CSE final year project at IUST Kashmir.",
-    initials: "SA",
-    color: "bg-teal-500/10 border-teal-500/20 text-teal-400",
-  },
+const stack = [
+  "Next.js",
+  "TypeScript",
+  "Tailwind CSS",
+  "shadcn/ui",
+  "TRIBE v2",
+  "SigLIP",
+  "Grad-CAM",
+  "LibreOffice",
+  "Poppler",
+  "Supabase",
+  "Python",
+  "FastAPI",
 ];
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-[#020817] text-white">
-      {/* Header */}
-      <section className="max-w-4xl mx-auto px-8 pt-32 pb-16">
-        <div className="inline-flex items-center gap-2 bg-teal-500/10 border border-teal-500/20 rounded-full px-4 py-1.5 text-xs text-teal-300 mb-6">
-          <span className="w-1.5 h-1.5 rounded-full bg-teal-400 inline-block" />
-          IUST CSE · Batch 2023-27
+    <main className="font-body min-h-screen bg-[#0b1711] text-white">
+      <section className="mx-auto max-w-4xl px-6 pb-16 pt-36 sm:pt-40">
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[13px] text-white/70">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#c7f04b]" />
+          IUST CSE · Batch 2023–27
         </div>
-        <h1 className="text-4xl font-semibold mb-4">About Percept</h1>
-        <p className="text-white/40 text-lg leading-relaxed max-w-2xl">
-          Percept is a final year project by three CSE students at the Islamic
+        <h1 className="font-display text-[40px] font-bold leading-tight tracking-tight sm:text-[52px]">
+          About Percept
+        </h1>
+        <p className="mt-5 max-w-2xl text-[17px] leading-relaxed text-white/55">
+          Percept is a final-year project by three CSE students at the Islamic
           University of Science and Technology, Kashmir. It combines
           neuroscience, computer vision, and AI to help educators build more
           cognitively effective presentations.
         </p>
       </section>
 
-      {/* What we built */}
-      <section className="max-w-4xl mx-auto px-8 pb-16 border-t border-white/[0.06] pt-14">
-        <p className="text-xs text-white/30 uppercase tracking-widest mb-4">
+      <section className="mx-auto max-w-4xl border-t border-white/[0.06] px-6 pb-16 pt-14">
+        <span className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#c7f04b]">
           The project
-        </p>
-        <h2 className="text-2xl font-semibold mb-6">What is Percept?</h2>
-        <div className="grid grid-cols-2 gap-6">
-          <p className="text-white/50 text-sm leading-relaxed">
+        </span>
+        <h2 className="font-display mt-4 text-[26px] font-semibold tracking-tight">
+          What is Percept?
+        </h2>
+        <div className="mt-6 grid gap-6 md:grid-cols-2">
+          <p className="text-[15px] leading-relaxed text-white/55">
             Most presentation tools tell you nothing about whether your slides
             actually work. Percept fixes that by running each slide through a
             neural encoding model trained on fMRI brain data — predicting how
             the human brain responds to what it sees.
           </p>
-          <p className="text-white/50 text-sm leading-relaxed">
+          <p className="text-[15px] leading-relaxed text-white/55">
             The result is three cognitive scores per slide — attention,
             comprehension, and cognitive load — paired with a Grad-CAM heatmap
             showing exactly where the brain focuses, and plain-language advice
@@ -64,29 +58,15 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Tech stack */}
-      <section className="max-w-4xl mx-auto px-8 pb-16 border-t border-white/[0.06] pt-14">
-        <p className="text-xs text-white/30 uppercase tracking-widest mb-8">
+      <section className="mx-auto max-w-4xl border-t border-white/[0.06] px-6 pb-16 pt-14">
+        <span className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#c7f04b]">
           Built with
-        </p>
-        <div className="flex flex-wrap gap-3">
-          {[
-            "Next.js",
-            "TypeScript",
-            "Tailwind CSS",
-            "shadcn/ui",
-            "TRIBE v2",
-            "SigLIP",
-            "Grad-CAM",
-            "LibreOffice",
-            "Poppler",
-            "Supabase",
-            "Python",
-            "FastAPI",
-          ].map((tech) => (
+        </span>
+        <div className="mt-7 flex flex-wrap gap-2.5">
+          {stack.map((tech) => (
             <span
               key={tech}
-              className="bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-2 text-sm text-white/60"
+              className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2 text-[13.5px] text-white/65 transition hover:border-[#c7f04b]/30 hover:text-white"
             >
               {tech}
             </span>
@@ -94,27 +74,24 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team */}
-      <section className="max-w-4xl mx-auto px-8 pb-16 border-t border-white/[0.06] pt-14">
-        <p className="text-xs text-white/30 uppercase tracking-widest mb-8">
+      <section className="mx-auto max-w-4xl border-t border-white/[0.06] px-6 pb-16 pt-14">
+        <span className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#c7f04b]">
           The team
-        </p>
-        <div className="grid grid-cols-3 gap-6">
+        </span>
+        <div className="mt-7 grid gap-5 sm:grid-cols-3">
           {team.map((member) => (
             <div
               key={member.name}
-              className="bg-white/[0.02] border border-white/[0.07] rounded-2xl p-6 hover:border-white/[0.12] transition"
+              className="rounded-3xl border border-white/[0.08] bg-white/[0.02] p-6 transition hover:border-[#c7f04b]/30 hover:bg-white/[0.04]"
             >
-              <div
-                className={`w-12 h-12 rounded-xl border flex items-center justify-center text-sm font-medium mb-4 ${member.color}`}
-              >
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#c7f04b]/25 bg-[#c7f04b]/10 text-[15px] font-semibold text-[#c7f04b]">
                 {member.initials}
               </div>
-              <p className="text-sm font-medium text-white mb-1">
+              <p className="font-display mt-5 text-[16px] font-semibold tracking-tight text-white">
                 {member.name}
               </p>
-              <p className="text-xs text-white/40 mb-3">{member.role}</p>
-              <p className="text-xs text-white/30 leading-relaxed">
+              <p className="mt-1 text-[12.5px] text-[#c7f04b]">{member.role}</p>
+              <p className="mt-3 text-[13px] leading-relaxed text-white/45">
                 {member.desc}
               </p>
             </div>
@@ -122,39 +99,44 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Supervisor */}
-      <section className="max-w-4xl mx-auto px-8 pb-16 border-t border-white/[0.06] pt-14">
-        <p className="text-xs text-white/30 uppercase tracking-widest mb-8">
+      <section className="mx-auto max-w-4xl border-t border-white/[0.06] px-6 pb-16 pt-14">
+        <span className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#c7f04b]">
           Supervised by
-        </p>
-        <div className="flex items-center gap-5 bg-white/[0.02] border border-white/[0.07] rounded-2xl p-6 max-w-sm">
-          <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-sm font-medium text-amber-400">
-            SS
+        </span>
+        <div className="mt-7 flex max-w-sm items-center gap-5 rounded-3xl border border-white/[0.08] bg-white/[0.02] p-6">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/[0.04] text-[15px] font-semibold text-white/80">
+            {supervisor.initials}
           </div>
           <div>
-            <p className="text-sm font-medium text-white">Dr. Sahil Sholla</p>
-            <p className="text-xs text-white/40 mt-0.5">
+            <p className="font-display text-[16px] font-semibold tracking-tight text-white">
+              {supervisor.name}
+            </p>
+            <p className="mt-0.5 text-[12.5px] text-white/40">
               Department of Computer Science
             </p>
-            <p className="text-xs text-white/30">IUST, Kashmir</p>
+            <p className="text-[12.5px] text-white/40">IUST, Kashmir</p>
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="max-w-4xl mx-auto px-8 pb-32">
-        <div className="relative rounded-3xl border border-violet-500/20 bg-violet-500/[0.04] p-10 text-center overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-600/10 via-transparent to-blue-600/10 pointer-events-none" />
-          <h3 className="text-2xl font-semibold mb-3">Try it yourself</h3>
-          <p className="text-white/40 text-sm mb-6">
-            Upload a presentation and see how your slides perform in the brain.
-          </p>
-          <Link
-            href="/upload"
-            className="inline-block bg-blue-500 hover:bg-blue-600 transition text-white px-8 py-3 rounded-xl text-sm font-medium"
-          >
-            Upload a slide
-          </Link>
+      <section className="mx-auto max-w-4xl px-6 pb-32 pt-2">
+        <div className="relative overflow-hidden rounded-[32px] bg-[#c7f04b] px-8 py-12 text-center text-[#10231a]">
+          <div className="pointer-events-none absolute inset-0 bg-blueprint opacity-[0.12]" />
+          <div className="relative">
+            <h3 className="font-display text-[28px] font-bold tracking-tight">
+              Try it yourself
+            </h3>
+            <p className="mx-auto mt-3 max-w-sm text-[15px] text-[#10231a]/70">
+              Upload a presentation and see how your slides perform in the
+              brain.
+            </p>
+            <Link
+              href="/upload"
+              className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#10231a] px-7 py-3.5 text-[14px] font-semibold text-white transition hover:bg-[#16321f]"
+            >
+              Upload a slide
+            </Link>
+          </div>
         </div>
       </section>
     </main>

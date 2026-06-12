@@ -1,7 +1,7 @@
 "use client";
 import { useCallback } from "react";
+import { Upload } from "lucide-react";
 import { useDropzone } from "react-dropzone";
-import { Button } from "@/components/ui/button";
 
 export function UploadZone({ onUpload }: { onUpload: (file: File) => void }) {
   const onDrop = useCallback(
@@ -25,15 +25,26 @@ export function UploadZone({ onUpload }: { onUpload: (file: File) => void }) {
   return (
     <div
       {...getRootProps()}
-      className="border-2 border-dashed rounded-xl p-12 text-center cursor-pointer hover:bg-muted transition"
+      className={`group cursor-pointer rounded-[20px] border border-dashed p-12 text-center transition ${
+        isDragActive
+          ? "border-[#c7f04b]/60 bg-[#c7f04b]/[0.06]"
+          : "border-white/15 bg-white/[0.01] hover:border-[#c7f04b]/40 hover:bg-white/[0.03]"
+      }`}
     >
       <input {...getInputProps()} />
-      <p className="text-muted-foreground mb-4">
-        {isDragActive
-          ? "Drop it here..."
-          : "Drag a .ppt, .pptx or .pdf file, or click to browse"}
+      <span className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#c7f04b] text-[#10231a]">
+        <Upload className="h-[22px] w-[22px]" strokeWidth={1.8} />
+      </span>
+      <p className="font-display text-[17px] font-semibold tracking-tight text-white">
+        {isDragActive ? "Drop it right here" : "Drag & drop your deck"}
       </p>
-      <Button type="button">Upload Presentation</Button>
+      <p className="mt-1.5 text-[13.5px] text-white/45">
+        or{" "}
+        <span className="text-[#c7f04b] underline-offset-2 group-hover:underline">
+          browse files
+        </span>{" "}
+        — .ppt, .pptx or .pdf
+      </p>
     </div>
   );
 }

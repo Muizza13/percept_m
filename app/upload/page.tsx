@@ -45,7 +45,11 @@ export default function UploadPage() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ imageBase64: slide }),
           });
-          return res.json();
+          const data = await res.json();
+          if (!res.ok || data.error) {
+            throw new Error(data.error ?? "Analysis failed");
+          }
+          return data;
         }),
       );
       sessionStorage.setItem("perceptResults", JSON.stringify(results));

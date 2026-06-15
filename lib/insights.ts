@@ -1,10 +1,40 @@
-export type CognitiveLoad = "Low" | "Medium" | "High";
+import { z } from "zod/v3";
 
-export type SlideResult = {
-  attention: number;
-  comprehension: number;
-  cognitiveLoad: CognitiveLoad;
-};
+export const cognitiveLoadSchema = z.enum(["Low", "Medium", "High"]);
+export type CognitiveLoad = z.infer<typeof cognitiveLoadSchema>;
+
+export const slideResultSchema = z.object({
+  attention: z.number(),
+  comprehension: z.number(),
+  cognitiveLoad: cognitiveLoadSchema,
+  insight: z.string().optional(),
+  recommendations: z.array(z.string()).optional(),
+});
+
+export type SlideResult = z.infer<typeof slideResultSchema>;
+
+export const slideAnalysisSchema = z.object({
+  attention: z.number().int().min(0).max(100),
+  comprehension: z.number().int().min(0).max(100),
+  cognitiveLoad: cognitiveLoadSchema,
+  insight: z.string().min(20),
+  recommendations: z.array(z.string().min(10)).min(2).max(5),
+});
+
+export function parseSlideResult(value: unknown): SlideResult | null {
+  const parsed = slideResultSchema.safeParse(value);
+  return parsed.success ? parsed.data : null;
+}
+
+export function resolveSlideContent(r: SlideResult) {
+  return {
+    insight: r.insight?.trim() ? r.insight : generateInsight(r),
+    recommendations:
+      r.recommendations && r.recommendations.length > 0
+        ? r.recommendations
+        : generateRecommendations(r),
+  };
+}
 
 export function generateInsight(r: SlideResult): string {
   const { attention, comprehension, cognitiveLoad: load } = r;

@@ -1,10 +1,10 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   type SlideResult,
-  generateInsight,
-  generateRecommendations,
+  parseSlideResult,
+  resolveSlideContent,
 } from "@/lib/insights";
 
 function loadStyles(load: SlideResult["cognitiveLoad"]) {
@@ -15,18 +15,6 @@ function loadStyles(load: SlideResult["cognitiveLoad"]) {
     return "text-amber-300 bg-amber-400/10 border-amber-400/25";
   }
   return "text-red-300 bg-red-400/10 border-red-400/25";
-}
-
-function isSlideResult(value: unknown): value is SlideResult {
-  if (!value || typeof value !== "object") return false;
-  const r = value as Record<string, unknown>;
-  return (
-    typeof r.attention === "number" &&
-    typeof r.comprehension === "number" &&
-    (r.cognitiveLoad === "Low" ||
-      r.cognitiveLoad === "Medium" ||
-      r.cognitiveLoad === "High")
-  );
 }
 
 export default function AnalysisPage() {
@@ -44,7 +32,9 @@ export default function AnalysisPage() {
       try {
         const parsed: unknown = JSON.parse(stored);
         if (Array.isArray(parsed)) {
-          nextResults = parsed.filter(isSlideResult);
+          nextResults = parsed
+            .map(parseSlideResult)
+            .filter((r): r is SlideResult => r !== null);
         }
       } catch {
         // ignore invalid session data
@@ -66,15 +56,6 @@ export default function AnalysisPage() {
     setResults(nextResults);
     setSlides(nextSlides);
   }, []);
-
-  const slideInsights = useMemo(
-    () =>
-      results.map((r) => ({
-        insight: generateInsight(r),
-        recommendations: generateRecommendations(r),
-      })),
-    [results],
-  );
 
   const avg = (key: "attention" | "comprehension") =>
     results.length > 0
@@ -149,11 +130,14 @@ export default function AnalysisPage() {
         <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-white/40">
           Per slide breakdown
         </p>
-        {results.map((r, i) => (
-          <div
-            key={i}
-            className="overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.02]"
-          >
+        {results.map((r, i) => {
+          const { insight, recommendations } = resolveSlideContent(r);
+
+          return (
+            <div
+              key={i}
+              className="overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.02]"
+            >
             <div className="grid md:grid-cols-2">
               <div className="flex min-h-[240px] items-center justify-center border-b border-white/[0.07] bg-black/25 md:border-b-0 md:border-r">
                 {slides[i] ? (
@@ -217,7 +201,7 @@ export default function AnalysisPage() {
                     Why these scores
                   </p>
                   <p className="text-[12.5px] leading-relaxed text-white/55">
-                    {slideInsights[i]?.insight}
+                    {insight}
                   </p>
                 </div>
               </div>
@@ -228,7 +212,7 @@ export default function AnalysisPage() {
                 Recommendations
               </p>
               <div className="grid grid-cols-1 gap-3">
-                {slideInsights[i]?.recommendations.map((rec, j) => (
+                {recommendations.map((rec, j) => (
                   <div
                     key={j}
                     className="flex items-start gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] px-4 py-3"
@@ -243,8 +227,9 @@ export default function AnalysisPage() {
                 ))}
               </div>
             </div>
-          </div>
-        ))}
+            </div>
+          );
+        })}
       </section>
     </main>
   );

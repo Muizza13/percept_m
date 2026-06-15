@@ -25,22 +25,22 @@ export function UploadZone({ onUpload }: { onUpload: (file: File) => void }) {
   return (
     <div
       {...getRootProps()}
-      className={`group cursor-pointer rounded-[20px] border border-dashed p-12 text-center transition ${
+      className={`group cursor-pointer rounded-xl border border-dashed p-14 text-center transition ${
         isDragActive
-          ? "border-[#c7f04b]/60 bg-[#c7f04b]/[0.06]"
-          : "border-white/15 bg-white/[0.01] hover:border-[#c7f04b]/40 hover:bg-white/[0.03]"
+          ? "border-[#c7f04b]/50 bg-[#c7f04b]/[0.04]"
+          : "border-white/12 bg-white/[0.015] hover:border-white/25 hover:bg-white/[0.025]"
       }`}
     >
       <input {...getInputProps()} />
-      <span className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#c7f04b] text-[#10231a]">
-        <Upload className="h-[22px] w-[22px]" strokeWidth={1.8} />
+      <span className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-white/55 transition group-hover:text-white/80">
+        <Upload className="h-5 w-5" strokeWidth={1.8} />
       </span>
-      <p className="font-display text-[17px] font-semibold tracking-tight text-white">
+      <p className="text-[15px] font-medium tracking-tight text-white/90">
         {isDragActive ? "Drop it right here" : "Drag & drop your deck"}
       </p>
-      <p className="mt-1.5 text-[13.5px] text-white/45">
+      <p className="mt-1 text-[13px] text-white/40">
         or{" "}
-        <span className="text-[#c7f04b] underline-offset-2 group-hover:underline">
+        <span className="text-white/70 underline underline-offset-2">
           browse files
         </span>{" "}
         — .ppt, .pptx or .pdf

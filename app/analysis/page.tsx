@@ -92,18 +92,18 @@ export default function AnalysisPage() {
 
   if (total === 0) {
     return (
-      <main className="font-body min-h-screen bg-[#0b1711] text-white">
+      <main className="font-body min-h-screen bg-[#0a0a0a] text-white">
         <FlowHeader current="analyze" />
         <div className="mx-auto flex min-h-screen max-w-xl flex-col items-center justify-center px-6 text-center">
-          <h1 className="font-display text-[28px] font-bold tracking-tight">
+          <h1 className="font-display text-[24px] font-semibold tracking-tight">
             No analysis yet
           </h1>
-          <p className="mt-3 text-[15px] text-white/50">
+          <p className="mt-2 text-[14px] text-white/45">
             Upload a presentation to see how each slide lands in the brain.
           </p>
           <Link
             href="/upload"
-            className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#c7f04b] px-7 py-3 text-[14px] font-semibold text-[#10231a] transition hover:bg-[#d4f56b]"
+            className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#c7f04b] px-6 py-2.5 text-[13.5px] font-semibold text-[#0a0a0a] transition hover:bg-[#d4f56b]"
           >
             <Upload className="h-4 w-4" />
             Upload a deck
@@ -117,49 +117,47 @@ export default function AnalysisPage() {
   const { insight, recommendations } = resolveSlideContent(current);
 
   return (
-    <main className="font-body flex min-h-[100dvh] flex-col bg-[#0b1711] pt-[68px] text-white lg:h-[100dvh] lg:overflow-hidden">
+    <main className="font-body flex min-h-[100dvh] flex-col bg-[#0a0a0a] pt-[57px] text-white lg:h-[100dvh] lg:overflow-hidden">
       <FlowHeader current="analyze" />
 
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 px-6 py-3">
-        <div className="flex items-center gap-3">
-          <h1 className="font-display text-[20px] font-bold tracking-tight">
+        <div className="flex items-baseline gap-2.5">
+          <h1 className="font-display text-[17px] font-semibold tracking-tight">
             Brain analysis
           </h1>
-          <span className="text-[13px] text-white/40">
+          <span className="text-[12.5px] text-white/35">
             {total} slide{total !== 1 ? "s" : ""}
           </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-5">
           {[
             { label: "Avg attention", value: avg("attention") },
             { label: "Avg comprehension", value: avg("comprehension") },
           ].map((s) => (
-            <div
-              key={s.label}
-              className="flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.02] px-3.5 py-1.5"
-            >
-              <span className="text-[12px] text-white/45">{s.label}</span>
-              <span className="font-display text-[15px] font-bold text-[#c7f04b]">
+            <div key={s.label} className="flex items-baseline gap-1.5">
+              <span className="text-[12px] text-white/40">{s.label}</span>
+              <span className="font-display text-[15px] font-semibold text-white">
                 {s.value}
+                <span className="text-[11px] text-white/25">/100</span>
               </span>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="grid flex-1 grid-cols-1 gap-4 px-6 pb-5 lg:min-h-0 lg:grid-cols-[88px_1fr_360px]">
+      <div className="grid flex-1 grid-cols-1 gap-3 px-6 pb-5 lg:min-h-0 lg:grid-cols-[84px_1fr_352px]">
         <aside className="order-3 min-h-0 lg:order-1">
-          <div className="flex gap-2.5 overflow-x-auto pb-1 lg:h-full lg:flex-col lg:overflow-x-hidden lg:overflow-y-auto lg:pb-0 lg:pr-1">
+          <div className="flex gap-2 overflow-x-auto pb-1 lg:h-full lg:flex-col lg:overflow-x-hidden lg:overflow-y-auto lg:pb-0 lg:pr-1">
             {results.map((r, i) => (
               <button
                 key={i}
                 onClick={() => setActive(i)}
                 aria-label={`Go to slide ${i + 1}`}
                 aria-current={i === active}
-                className={`group relative aspect-video w-24 shrink-0 overflow-hidden rounded-lg border bg-black/30 transition lg:w-full ${
+                className={`group relative aspect-video w-24 shrink-0 overflow-hidden rounded-md border bg-white/[0.02] transition lg:w-full ${
                   i === active
-                    ? "border-[#c7f04b] ring-1 ring-[#c7f04b]/40"
-                    : "border-white/[0.08] hover:border-white/25"
+                    ? "border-[#c7f04b]/70"
+                    : "border-white/[0.07] hover:border-white/20"
                 }`}
               >
                 {slides[i] ? (
@@ -174,18 +172,18 @@ export default function AnalysisPage() {
                     {i + 1}
                   </span>
                 )}
-                <span className="absolute left-1 top-1 rounded bg-black/55 px-1.5 py-0.5 text-[10px] text-white/75 backdrop-blur-sm">
+                <span className="absolute left-1 top-1 rounded bg-black/55 px-1 py-0.5 text-[9px] text-white/70 backdrop-blur-sm">
                   {i + 1}
                 </span>
                 <span
-                  className={`absolute bottom-1 right-1 h-2 w-2 rounded-full ${loadDot(r.cognitiveLoad)}`}
+                  className={`absolute bottom-1 right-1 h-1.5 w-1.5 rounded-full ${loadDot(r.cognitiveLoad)}`}
                 />
               </button>
             ))}
           </div>
         </aside>
 
-        <div className="relative order-1 flex min-h-[42vh] items-center justify-center overflow-hidden rounded-3xl border border-white/[0.08] bg-black/30 p-4 lg:order-2 lg:min-h-0">
+        <div className="relative order-1 flex min-h-[42vh] items-center justify-center overflow-hidden rounded-xl border border-white/[0.07] bg-white/[0.015] p-4 lg:order-2 lg:min-h-0">
           {slides[active] ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -197,35 +195,35 @@ export default function AnalysisPage() {
             <p className="text-[12px] text-white/20">No preview</p>
           )}
 
-          <span className="absolute left-4 top-4 rounded-full bg-black/55 px-3 py-1 text-[12px] font-medium text-white/80 backdrop-blur-sm">
-            Slide {active + 1} / {total}
+          <span className="absolute left-3 top-3 rounded-md bg-black/50 px-2.5 py-1 text-[11.5px] font-medium text-white/75 backdrop-blur-sm">
+            {active + 1} / {total}
           </span>
 
           <button
             onClick={() => go(-1)}
             disabled={active === 0}
             aria-label="Previous slide"
-            className="absolute left-4 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-[#0e1c14] text-white shadow-[0_8px_24px_-6px_rgba(0,0,0,0.7)] transition hover:border-white/40 hover:bg-[#13251a] disabled:pointer-events-none disabled:opacity-30"
+            className="absolute left-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-[#18181b] text-white transition hover:border-white/35 hover:bg-[#27272a] disabled:pointer-events-none disabled:opacity-25"
           >
-            <ChevronLeft className="h-6 w-6" />
+            <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             onClick={() => go(1)}
             disabled={active === total - 1}
             aria-label="Next slide"
-            className="absolute right-4 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-[#c7f04b] text-[#10231a] shadow-[0_8px_24px_-6px_rgba(199,240,75,0.5)] transition hover:bg-[#d4f56b] disabled:pointer-events-none disabled:opacity-30"
+            className="absolute right-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-[#c7f04b] text-[#0a0a0a] transition hover:bg-[#d4f56b] disabled:pointer-events-none disabled:opacity-25"
           >
-            <ChevronRight className="h-6 w-6" />
+            <ChevronRight className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="order-2 flex min-h-0 flex-col gap-3 overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.02] p-5 lg:order-3">
+        <div className="order-2 flex min-h-0 flex-col gap-3 overflow-hidden rounded-xl border border-white/[0.07] bg-white/[0.015] p-5 lg:order-3">
           <div className="flex shrink-0 items-center justify-between">
-            <p className="font-display text-[15px] font-semibold tracking-tight text-white/85">
+            <p className="font-display text-[14px] font-semibold tracking-tight text-white/85">
               Slide {active + 1}
             </p>
             <span
-              className={`rounded-full border px-3 py-1 text-[12px] ${loadStyles(current.cognitiveLoad)}`}
+              className={`rounded-full border px-2.5 py-0.5 text-[11.5px] ${loadStyles(current.cognitiveLoad)}`}
             >
               {current.cognitiveLoad} load
             </span>
@@ -238,14 +236,14 @@ export default function AnalysisPage() {
             ].map((m) => (
               <div
                 key={m.label}
-                className="rounded-2xl border border-white/[0.08] bg-white/[0.02] px-3.5 py-2.5"
+                className="rounded-lg border border-white/[0.07] bg-white/[0.02] px-3.5 py-2.5"
               >
-                <p className="text-[11.5px] text-white/45">{m.label}</p>
-                <p className="font-display mt-0.5 text-[22px] font-bold text-white">
+                <p className="text-[11.5px] text-white/40">{m.label}</p>
+                <p className="font-display mt-0.5 text-[21px] font-semibold text-white">
                   {m.value}
-                  <span className="text-[12px] text-white/25">/100</span>
+                  <span className="text-[11px] text-white/25">/100</span>
                 </p>
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+                <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/10">
                   <div
                     className="h-full rounded-full bg-[#c7f04b] transition-all duration-700"
                     style={{ width: `${m.value}%` }}
@@ -255,29 +253,24 @@ export default function AnalysisPage() {
             ))}
           </div>
 
-          <div className="shrink-0 rounded-2xl border border-white/[0.06] bg-white/[0.02] px-4 py-3">
-            <p className="mb-1.5 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-[#c7f04b]/80">
+          <div className="shrink-0">
+            <p className="mb-1.5 text-[10.5px] font-medium uppercase tracking-[0.14em] text-white/35">
               Why these scores
             </p>
-            <p className="line-clamp-3 text-[12px] leading-relaxed text-white/55">
+            <p className="line-clamp-3 text-[12px] leading-relaxed text-white/50">
               {insight}
             </p>
           </div>
 
           <div className="flex min-h-0 flex-1 flex-col">
-            <p className="mb-2 shrink-0 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-white/40">
+            <p className="mb-2 shrink-0 text-[10.5px] font-medium uppercase tracking-[0.14em] text-white/35">
               Recommendations
             </p>
-            <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
+            <div className="min-h-0 flex-1 space-y-1.5 overflow-y-auto pr-1">
               {recommendations.map((rec, j) => (
-                <div
-                  key={j}
-                  className="flex items-start gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2"
-                >
-                  <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-[#c7f04b]/30 bg-[#c7f04b]/15 text-[10px] font-semibold text-[#c7f04b]">
-                    {j + 1}
-                  </span>
-                  <p className="text-[12px] leading-snug text-white/55">{rec}</p>
+                <div key={j} className="flex items-start gap-2.5">
+                  <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-[#c7f04b]" />
+                  <p className="text-[12px] leading-snug text-white/50">{rec}</p>
                 </div>
               ))}
             </div>
@@ -287,18 +280,18 @@ export default function AnalysisPage() {
             <button
               onClick={() => go(-1)}
               disabled={active === 0}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-4 py-2 text-[13px] font-medium text-white/80 transition hover:border-white/35 hover:text-white disabled:pointer-events-none disabled:opacity-30"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-white/12 px-4 py-2 text-[13px] font-medium text-white/75 transition hover:border-white/30 hover:text-white disabled:pointer-events-none disabled:opacity-25"
             >
               <ChevronLeft className="h-4 w-4" />
               Prev
             </button>
-            <span className="text-[12.5px] tabular-nums text-white/45">
+            <span className="text-[12.5px] tabular-nums text-white/40">
               {active + 1} / {total}
             </span>
             <button
               onClick={() => go(1)}
               disabled={active === total - 1}
-              className="inline-flex items-center gap-1.5 rounded-full bg-[#c7f04b] px-5 py-2 text-[13px] font-semibold text-[#10231a] transition hover:bg-[#d4f56b] disabled:pointer-events-none disabled:opacity-30"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#c7f04b] px-5 py-2 text-[13px] font-semibold text-[#0a0a0a] transition hover:bg-[#d4f56b] disabled:pointer-events-none disabled:opacity-25"
             >
               Next
               <ChevronRight className="h-4 w-4" />

@@ -7,6 +7,7 @@ import {
   parseSlideResult,
   resolveSlideContent,
 } from "@/lib/insights";
+import { type SlideReference, parseSlideReferences } from "@/lib/slides";
 import { FlowHeader } from "@/components/flow-header";
 
 function loadStyles(load: SlideResult["cognitiveLoad"]) {
@@ -27,7 +28,7 @@ function loadDot(load: SlideResult["cognitiveLoad"]) {
 
 export default function AnalysisPage() {
   const [results, setResults] = useState<SlideResult[]>([]);
-  const [slides, setSlides] = useState<string[]>([]);
+  const [slides, setSlides] = useState<SlideReference[]>([]);
   const [active, setActive] = useState(0);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export default function AnalysisPage() {
     const storedSlides = sessionStorage.getItem("perceptSlides");
 
     let nextResults: SlideResult[] = [];
-    let nextSlides: string[] = [];
+    let nextSlides: SlideReference[] = [];
 
     if (stored) {
       try {
@@ -52,9 +53,7 @@ export default function AnalysisPage() {
     if (storedSlides) {
       try {
         const parsed: unknown = JSON.parse(storedSlides);
-        if (Array.isArray(parsed)) {
-          nextSlides = parsed.filter((s): s is string => typeof s === "string");
-        }
+        nextSlides = parseSlideReferences(parsed);
       } catch {
         // ignore invalid session data
       }
@@ -160,10 +159,10 @@ export default function AnalysisPage() {
                     : "border-white/[0.07] hover:border-white/20"
                 }`}
               >
-                {slides[i] ? (
+                {slides[i]?.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={slides[i]}
+                    src={slides[i].imageUrl}
                     alt={`Slide ${i + 1}`}
                     className="h-full w-full object-cover"
                   />
@@ -184,10 +183,10 @@ export default function AnalysisPage() {
         </aside>
 
         <div className="relative order-1 flex min-h-[42vh] items-center justify-center overflow-hidden rounded-xl border border-white/[0.07] bg-white/[0.015] p-4 lg:order-2 lg:min-h-0">
-          {slides[active] ? (
+          {slides[active]?.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={slides[active]}
+              src={slides[active].imageUrl}
               alt={`Slide ${active + 1}`}
               className="max-h-full max-w-full object-contain"
             />

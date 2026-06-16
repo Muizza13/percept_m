@@ -4,9 +4,93 @@ import { useRouter } from "next/navigation";
 import { FileCheck2, Loader2, Sparkles } from "lucide-react";
 import { UploadZone } from "@/components/upload-zone";
 import { FlowHeader } from "@/components/flow-header";
+import type { SlideResult } from "@/lib/insights";
+import type { SlideReference } from "@/lib/slides";
+
+const ANALYSIS_CONCURRENCY = 3;
+const MAX_ANALYSIS_RETRIES = 2;
+const TRANSIENT_STATUS_CODES = new Set([429, 500, 502, 503]);
+
+type ConvertResponse = {
+  deckId?: string;
+  slides?: SlideReference[];
+  error?: string;
+};
+
+function delay(ms: number) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+async function analyzeSlide(
+  deckId: string,
+  slide: SlideReference,
+): Promise<SlideResult> {
+  for (let attempt = 0; attempt <= MAX_ANALYSIS_RETRIES; attempt += 1) {
+    const res = await fetch("/api/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ deckId, slideIndex: slide.index }),
+    });
+    const data = await res.json();
+
+    if (res.ok && !data.error) {
+      return data;
+    }
+
+    const canRetry =
+      TRANSIENT_STATUS_CODES.has(res.status) && attempt < MAX_ANALYSIS_RETRIES;
+    if (!canRetry) {
+      throw new Error(
+        `Slide ${slide.index + 1}: ${data.error ?? "Analysis failed"}`,
+      );
+    }
+
+    await delay(600 * 2 ** attempt);
+  }
+
+  throw new Error(`Slide ${slide.index + 1}: Analysis failed`);
+}
+
+async function analyzeSlides(deckId: string, slides: SlideReference[]) {
+  const results = new Array<SlideResult>(slides.length);
+  let nextSlide = 0;
+  let firstError: Error | null = null;
+
+  async function worker() {
+    while (!firstError) {
+      const current = nextSlide;
+      nextSlide += 1;
+
+      if (current >= slides.length) {
+        return;
+      }
+
+      try {
+        results[current] = await analyzeSlide(deckId, slides[current]);
+      } catch (error) {
+        firstError = error instanceof Error ? error : new Error("Analysis failed");
+        return;
+      }
+    }
+  }
+
+  await Promise.all(
+    Array.from(
+      { length: Math.min(ANALYSIS_CONCURRENCY, slides.length) },
+      () => worker(),
+    ),
+  );
+
+  if (firstError) {
+    throw firstError;
+  }
+
+  return results;
+}
 
 export default function UploadPage() {
-  const [slides, setSlides] = useState<string[]>([]);
+  const [deckId, setDeckId] = useState<string | null>(null);
+  const [slides, setSlides] = useState<SlideReference[]>([]);
   const [fileName, setFileName] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
@@ -15,6 +99,7 @@ export default function UploadPage() {
 
   const handleUpload = useCallback(async (file: File) => {
     setLoading(true);
+    setDeckId(null);
     setSlides([]);
     setError(null);
     setFileName(file.name);
@@ -25,10 +110,13 @@ export default function UploadPage() {
         method: "POST",
         body: formData,
       });
-      const data = await res.json();
-      if (data.error) {
-        setError(data.error);
+      const data = (await res.json()) as ConvertResponse;
+      if (!res.ok || data.error) {
+        setError(data.error ?? "Conversion failed");
+      } else if (!data.deckId || !Array.isArray(data.slides)) {
+        setError("Conversion returned an invalid response.");
       } else {
+        setDeckId(data.deckId);
         setSlides(data.slides);
       }
     } catch {
@@ -39,28 +127,19 @@ export default function UploadPage() {
   }, []);
 
   async function handleAnalyze() {
-    if (slides.length === 0) return;
+    if (!deckId || slides.length === 0) return;
     setAnalyzing(true);
+    setError(null);
     try {
-      const results = await Promise.all(
-        slides.map(async (slide) => {
-          const res = await fetch("/api/analyze", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ imageBase64: slide }),
-          });
-          const data = await res.json();
-          if (!res.ok || data.error) {
-            throw new Error(data.error ?? "Analysis failed");
-          }
-          return data;
-        }),
-      );
+      const results = await analyzeSlides(deckId, slides);
       sessionStorage.setItem("perceptResults", JSON.stringify(results));
       sessionStorage.setItem("perceptSlides", JSON.stringify(slides));
+      sessionStorage.setItem("perceptDeckId", deckId);
       router.push("/analysis");
-    } catch {
-      setError("Analysis failed. Please try again.");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Analysis failed. Please try again.";
+      setError(`${message}. Please try again.`);
       setAnalyzing(false);
     }
   }
@@ -121,14 +200,14 @@ export default function UploadPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {slides.map((src, i) => (
+              {slides.map((slide, i) => (
                 <div
-                  key={i}
+                  key={slide.index}
                   className="group relative overflow-hidden rounded-lg border border-white/[0.07] bg-white/[0.02] transition hover:border-white/20"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={src}
+                    src={slide.imageUrl}
                     alt={`Slide ${i + 1}`}
                     className="w-full object-cover"
                   />

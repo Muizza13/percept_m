@@ -3,16 +3,17 @@ import { GoogleGenAI } from "@google/genai";
 import { z } from "zod/v3";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { slideAnalysisSchema } from "@/lib/insights";
+import { readSlide } from "@/lib/deck-cache";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const GEMINI_MODEL = "gemini-3.5-flash";
 const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
-const PNG_DATA_URL_PREFIX = /^data:image\/png;base64,/;
 
 const requestSchema = z.object({
-  imageBase64: z.string().min(1),
+  deckId: z.string().min(1),
+  slideIndex: z.number().int().min(0),
 });
 
 const responseJsonSchema = zodToJsonSchema(slideAnalysisSchema, {
@@ -29,24 +30,6 @@ function getGeminiClient(apiKey: string) {
 
 function jsonError(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
-}
-
-function base64DecodedByteLength(value: string) {
-  const padding = value.endsWith("==") ? 2 : value.endsWith("=") ? 1 : 0;
-  return Math.floor((value.length * 3) / 4) - padding;
-}
-
-function parsePngDataUrl(imageBase64: string) {
-  if (!PNG_DATA_URL_PREFIX.test(imageBase64)) {
-    return null;
-  }
-
-  const base64Data = imageBase64.replace(PNG_DATA_URL_PREFIX, "");
-  if (base64Data.length % 4 !== 0) {
-    return null;
-  }
-
-  return base64Data;
 }
 
 function mapGeminiError(error: unknown) {
@@ -84,17 +67,21 @@ export async function POST(req: NextRequest) {
 
   const body = requestSchema.safeParse(await req.json());
   if (!body.success) {
-    return jsonError("Request must include imageBase64", 400);
+    return jsonError("Request must include deckId and slideIndex", 400);
   }
 
-  const base64Data = parsePngDataUrl(body.data.imageBase64);
-  if (!base64Data) {
-    return jsonError("imageBase64 must be a PNG data URL", 400);
+  let image: Buffer;
+  try {
+    image = await readSlide(body.data.deckId, body.data.slideIndex);
+  } catch {
+    return jsonError("Slide image was not found", 404);
   }
 
-  if (base64DecodedByteLength(base64Data) > MAX_IMAGE_BYTES) {
+  if (image.byteLength > MAX_IMAGE_BYTES) {
     return jsonError("Image payload is too large", 413);
   }
+
+  const base64Data = image.toString("base64");
 
   let response;
   try {

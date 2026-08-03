@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Eye, Gauge, Lightbulb, Zap } from "lucide-react";
+import { Eye, Gauge, Lightbulb } from "lucide-react";
 
 export function Features() {
   return (
@@ -7,41 +7,35 @@ export function Features() {
       <div className="mx-auto max-w-6xl">
         <div className="max-w-2xl">
           <span className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#3c6b4f]">
-            Why Percept
+            Capabilities
           </span>
           <h2 className="font-display mt-4 text-[34px] font-bold leading-tight tracking-tight sm:text-[42px]">
-            Most slide tools check spelling.
+            Heuristic scores for
             <br />
-            We check whether you were understood.
+            visual communication quality.
           </h2>
           <p className="mt-5 text-[16px] leading-relaxed text-[#10231a]/60">
-            Every deck runs through a neural encoding model trained on fMRI
-            recordings of the human brain. The result is measurable, not a hunch.
+            Each rendered slide is scored by a vision-language model against a
+            fixed schema. The scores are a proxy for visual-communication
+            quality, not a measurement of neural response.
           </p>
         </div>
 
         <div className="mt-12 grid gap-4 md:grid-cols-3">
           <FeatureCard
-            wide
             icon={<Eye className="h-5 w-5" />}
-            title="Attention heatmaps"
-            desc="A Grad-CAM overlay shows exactly where the brain looks first — and what it ignores. Catch buried headlines before your audience does."
+            title="Attention"
+            desc="Rates how strongly the slide creates a clear focal point and visual pull."
           />
           <FeatureCard
             icon={<Gauge className="h-5 w-5" />}
-            title="Cognitive load score"
-            desc="Know when a slide is doing too much, instantly."
+            title="Cognitive load"
+            desc="Rates visual density, competing elements, and the effort required to parse the slide."
           />
           <FeatureCard
             icon={<Lightbulb className="h-5 w-5" />}
-            title="Plain-English advice"
-            desc="LLM-written fixes, ranked by impact — no jargon."
-          />
-          <FeatureCard
-            wide
-            icon={<Zap className="h-5 w-5" />}
-            title="Results in seconds"
-            desc="Upload a full deck and get per-slide cognitive scores back before your coffee cools. Built for the night before the big talk."
+            title="Comprehension and advice"
+            desc="Rates how easily a viewer can understand the message and hierarchy, and returns a short insight with recommendations."
           />
         </div>
       </div>
@@ -53,19 +47,13 @@ function FeatureCard({
   icon,
   title,
   desc,
-  wide,
 }: {
   icon: ReactNode;
   title: string;
   desc: string;
-  wide?: boolean;
 }) {
   return (
-    <div
-      className={`rounded-3xl border border-[#10231a]/10 bg-white/60 p-7 transition hover:border-[#3c6b4f]/40 hover:bg-white ${
-        wide ? "md:col-span-2" : ""
-      }`}
-    >
+    <div className="rounded-3xl border border-[#10231a]/10 bg-white/60 p-7 transition hover:border-[#3c6b4f]/40 hover:bg-white">
       <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#10231a] text-[#c7f04b]">
         {icon}
       </span>

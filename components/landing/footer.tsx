@@ -2,18 +2,17 @@ import Link from "next/link";
 import { Logo } from "@/components/logo";
 
 const footerLinks = {
-  Product: [
+  Project: [
     { label: "Overview", href: "/" },
-    { label: "The science", href: "/#science" },
-    { label: "How it works", href: "/#how" },
-    { label: "Pricing", href: "/#pricing" },
+    { label: "Theoretical grounding", href: "/#science" },
+    { label: "Pipeline", href: "/#how" },
   ],
-  Company: [
+  Pages: [
     { label: "About", href: "/about" },
     { label: "Team", href: "/#team" },
     { label: "Upload", href: "/upload" },
   ],
-  Resources: [{ label: "Analysis", href: "/analysis" }],
+  Analysis: [{ label: "Results", href: "/analysis" }],
 } as const;
 
 export function Footer() {
@@ -28,8 +27,8 @@ export function Footer() {
             </span>
           </div>
           <p className="mt-4 max-w-xs text-[14px] leading-relaxed text-white/45">
-            Brain-trained slide analysis. Built at IUST Kashmir, Department of
-            Computer Science & Engineering.
+            Slide evaluation for visual communication quality. Group 10,
+            Department of Computer Science and Engineering, IUST Kashmir.
           </p>
         </div>
 
@@ -54,12 +53,11 @@ export function Footer() {
 
       <div className="mx-auto mt-14 flex max-w-6xl flex-col items-center justify-between gap-4 border-t border-white/[0.06] pt-6 sm:flex-row">
         <p className="text-[13px] text-white/35">
-          © 2026 Percept. All rights reserved.
+          © 2026 Percept · IUST CSE Group 10
         </p>
-        <div className="flex items-center gap-2 text-[13px] text-white/35">
-          <span className="p-pulse-dot h-1.5 w-1.5 rounded-full bg-[#c7f04b]" />
-          All systems operational
-        </div>
+        <p className="text-[13px] text-white/35">
+          Supervisor: Dr. Sahil Sholla, Assistant Professor
+        </p>
       </div>
     </footer>
   );

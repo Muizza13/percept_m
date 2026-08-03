@@ -3,7 +3,6 @@ import {
   ArrowRight,
   Eye,
   Gauge,
-  Grid3x3,
   Lightbulb,
   MoreHorizontal,
   Plus,
@@ -19,28 +18,34 @@ export function Hero() {
       <div className="glow-lime pointer-events-none absolute left-1/2 top-24 -z-10 h-[520px] w-[820px] -translate-x-1/2" />
 
       <div className="mx-auto max-w-4xl text-center">
-        <div className="p-rise mx-auto mb-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] py-1.5 pl-2 pr-3 backdrop-blur">
-          <span className="rounded-full bg-[#c7f04b] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[#10231a]">
-            Live
-          </span>
+        <div className="p-rise mx-auto mb-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] py-1.5 px-3 backdrop-blur">
           <span className="text-[13px] text-white/70">
-            Neural analysis engine, trained on real fMRI data
+            IUST CSE · Group 10 · Final-year project
           </span>
         </div>
 
         <h1 className="font-display p-rise text-[44px] font-bold leading-[1.04] tracking-tight text-white sm:text-[64px]">
-          See how your slides
+          Evaluating presentation slides
           <br />
-          <span className="text-[#c7f04b]">land in the brain</span>
+          <span className="text-[#c7f04b]">for visual communication quality</span>
         </h1>
 
         <p
           className="p-rise mx-auto mt-6 max-w-xl text-[16px] leading-relaxed text-white/55"
           style={{ animationDelay: "80ms" }}
         >
-          Percept scores every slide on attention, comprehension, and cognitive
-          load using brain-trained models — then tells you, in plain language,
-          exactly what to fix before you present.
+          Percept evaluates each slide on attention, comprehension, and
+          cognitive load using a vision-language model applied to rendered slide
+          images, and returns a short explanation with recommendations.
+        </p>
+
+        <p
+          className="p-rise mx-auto mt-4 max-w-xl text-[13px] leading-relaxed text-white/40"
+          style={{ animationDelay: "110ms" }}
+        >
+          Department of Computer Science and Engineering, Islamic University of
+          Science and Technology, Kashmir. Supervisor: Dr. Sahil Sholla,
+          Assistant Professor.
         </p>
 
         <div
@@ -51,14 +56,14 @@ export function Hero() {
             href="/upload"
             className="group flex items-center gap-2 rounded-full bg-[#c7f04b] px-6 py-3.5 text-[14px] font-semibold text-[#10231a] transition hover:bg-[#d4f56b]"
           >
-            Analyze your deck — free
+            Open the upload page
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
           <Link
             href="#how"
             className="rounded-full border border-white/15 px-6 py-3.5 text-[14px] text-white/80 transition hover:border-white/35 hover:text-white"
           >
-            See how it works
+            Pipeline overview
           </Link>
         </div>
       </div>
@@ -73,7 +78,6 @@ function ProductCard() {
     { label: "Attention", icon: <Eye className="h-4 w-4" /> },
     { label: "Comprehension", icon: <Lightbulb className="h-4 w-4" /> },
     { label: "Cognitive load", icon: <Gauge className="h-4 w-4" /> },
-    { label: "Heatmap", icon: <Grid3x3 className="h-4 w-4" /> },
   ];
 
   return (
@@ -83,14 +87,11 @@ function ProductCard() {
     >
       <div className="rounded-[20px] border border-white/[0.06] bg-[#10211880] p-6 sm:p-8">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <span className="p-pulse-dot h-2 w-2 rounded-full bg-[#c7f04b]" />
-            <p className="text-[14px] font-medium text-white/85">
-              Analyze a new deck
-            </p>
-          </div>
+          <p className="text-[14px] font-medium text-white/85">
+            Analyse a presentation
+          </p>
           <span className="rounded-full border border-white/10 px-2.5 py-1 text-[11px] text-white/45">
-            TRIBE v2 · ready
+            Gemini · structured JSON
           </span>
         </div>
 
@@ -102,21 +103,12 @@ function ProductCard() {
           >
             <Plus className="h-4 w-4" />
           </Link>
-          <div className="flex -space-x-2">
-            {["#c7f04b", "#7fd1a2", "#4fb8c9"].map((c) => (
-              <span
-                key={c}
-                className="h-7 w-7 rounded-full border-2 border-[#102118]"
-                style={{ background: c }}
-              />
-            ))}
-          </div>
           <p className="flex-1 truncate text-[13.5px] text-white/40">
-            Drop a .pptx, .pdf or paste a slide…
+            Accepts .ppt, .pptx, or .pdf
           </p>
           <Link
             href="/upload"
-            aria-label="Run analysis"
+            aria-label="Open upload"
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#c7f04b] text-[#10231a] transition hover:bg-[#d4f56b]"
           >
             <ArrowRight className="h-4 w-4" />

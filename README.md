@@ -1,69 +1,72 @@
 # Percept
 
-Percept is a web application that evaluates presentation slides on three cognitive dimensions — **attention**, **comprehension**, and **cognitive load** — using a neural encoding model trained on fMRI data. Users upload a `.ppt`, `.pptx`, or `.pdf` file; the application converts each slide into an image, submits it to the inference backend, and presents per-slide and aggregate scores.
+Percept is a web application that evaluates presentation slides on three dimensions of visual communication quality — **attention**, **comprehension**, and **cognitive load**. A user uploads a `.ppt`, `.pptx`, or `.pdf`; each page is rasterised to a PNG and scored by Google Gemini (`gemini-3.5-flash`) against a fixed JSON schema. The model also returns a short insight and recommendations. Results are held in `sessionStorage` and shown on the analysis page.
 
-Developed as a final-year project in the Department of Computer Science and Engineering, Islamic University of Science and Technology, Kashmir (Batch 2023–27).
+Developed as a final-year undergraduate project (Group 10) in the Department of Computer Science and Engineering, Islamic University of Science and Technology, Kashmir (Batch 2023–27). Supervisor: Dr. Sahil Sholla, Assistant Professor.
+
+The scoring dimensions are motivated by cognitive load theory (Sweller, 1988), dual coding theory (Paivio, 1991), and multimedia learning principles (Mayer, 2009). Scores are heuristic ratings from a general-purpose vision-language model, not measurements of neural response.
 
 ---
 
 ## Overview
 
-The application implements the following pipeline:
-
 1. The user uploads a presentation through the browser.
-2. The server converts the file into per-slide PNG images using LibreOffice and Poppler.
-3. Each slide is forwarded to a Python inference service deployed on a Hugging Face Space.
-4. The service returns a JSON payload containing `attention`, `comprehension`, and `cognitiveLoad` for the slide.
-5. The results are aggregated and rendered on the analysis page.
+2. LibreOffice converts `.ppt` / `.pptx` to PDF; Poppler (`pdftoppm`) rasterises each page to PNG.
+3. Images are cached on disk under `.percept-cache/<deckId>/`, keyed by a UUID.
+4. Each slide image is sent to Google Gemini with a Zod-derived JSON schema.
+5. The response (scores, insight, recommendations) is stored in `sessionStorage` and rendered on `/analysis`.
+6. Separately, `scripts/surprisal.py` can compute GPT-2 surprisal over text extracted from the PDF with `pdftotext`. That signal is an auxiliary text statistic; it is not used to derive any score.
 
 ## Technology Stack
 
-**Application layer (this repository)**
+**Application**
 
-- Next.js 16 (App Router) on React 19
-- TypeScript
-- Tailwind CSS v4, shadcn/ui, Radix UI
-- Framer Motion, lucide-react, react-dropzone
+- Next.js 16 (App Router), React 19, TypeScript
+- Tailwind CSS, shadcn/ui
+- Google Gemini via `@google/genai`
+- Zod (request and response validation)
 
 **Slide preprocessing**
 
-- LibreOffice (`soffice`) — converts PPT/PPTX to PDF
-- Poppler (`pdftoppm`) — rasterises PDF pages into PNG
+- LibreOffice (`soffice`) — PPT/PPTX → PDF
+- Poppler (`pdftoppm`, `pdftotext`) — PDF → PNG; optional text extraction
 
-**Inference backend** (maintained in a separate repository and deployed as a Hugging Face Space)
+**Auxiliary surprisal script**
 
-- Python with FastAPI
-- TRIBE v2, SigLIP, Grad-CAM
-- Endpoint: `https://muizza13-percept-api.hf.space/analyze`
+- Python 3, PyTorch, Hugging Face `transformers` (GPT-2)
 
 ## Architecture
 
 ```
-+---------------+        POST /api/convert         +-------------------+
-|  upload page  |  --------------------------->    |  soffice + poppler |
-|  (browser)    |  <---------- base64 PNGs ------- |   (Next.js route)  |
-+---------------+                                  +-------------------+
++---------------+      POST /api/convert       +---------------------------+
+|  /upload      | ---------------------------> | soffice + pdftoppm         |
+|  (browser)    | <--- deckId + slide refs --- | .percept-cache/<deckId>/   |
++---------------+                              +---------------------------+
         |
-        |  for each slide: POST /api/analyze
+        |  for each slide: POST /api/analyze { deckId, slideIndex }
         v
-+-------------------+    multipart form-data    +--------------------------+
-| /api/analyze (BFF)| ------------------------> | percept-api HF Space     |
-|                   | <------ JSON scores ----- | (FastAPI, TRIBE v2)      |
-+-------------------+                           +--------------------------+
++-------------------+   slide PNG + schema    +--------------------------+
+| /api/analyze      | ----------------------> | Google Gemini            |
+| (Next.js route)   | <--- JSON scores ------ | gemini-3.5-flash         |
++-------------------+                         +--------------------------+
         |
         v
 +----------------+
-| analysis page  |  reads results from sessionStorage
+| /analysis      |  reads results from sessionStorage
 +----------------+
+
+Optional (detached):
+  scripts/surprisal.py  --  pdftotext + GPT-2 surprisal over slide text
 ```
 
-The Next.js route handlers serve as a thin backend-for-frontend layer: `/api/convert` performs file conversion, and `/api/analyze` proxies requests to the inference service.
+`/api/convert` writes PNGs to the local cache and returns light slide references. `/api/analyze` reads a cached PNG and calls Gemini. Slide images are also served via `/api/slides/[deckId]/[index]`.
 
 ## Getting Started
 
 ### Prerequisites
 
-The slide conversion pipeline requires **LibreOffice** and **Poppler** to be installed locally.
+- Node.js 20 or later
+- LibreOffice and Poppler on `PATH`
 
 ```bash
 # macOS
@@ -74,7 +77,7 @@ brew install poppler
 sudo apt-get install libreoffice poppler-utils
 ```
 
-Node.js 20 or later is required.
+For the optional surprisal script: Python 3 with `torch` and `transformers`, and `pdftotext` on `PATH`.
 
 ### Installation
 
@@ -87,62 +90,86 @@ The development server is available at [http://localhost:3000](http://localhost:
 
 ### Scripts
 
-| Command         | Description                              |
-| --------------- | ---------------------------------------- |
-| `npm run dev`   | Starts the Next.js development server    |
-| `npm run build` | Produces a production build              |
-| `npm run start` | Runs the production build                |
-| `npm run lint`  | Runs ESLint                              |
+| Command         | Description                           |
+| --------------- | ------------------------------------- |
+| `npm run dev`   | Start the Next.js development server  |
+| `npm run build` | Produce a production build            |
+| `npm run start` | Run the production build              |
+| `npm run lint`  | Run ESLint                            |
 
 ### Environment Variables
 
-The current implementation calls a public Hugging Face Space, and therefore does not require an API key. A `HUGGINGFACE_API_KEY` reference is retained in `lib/hf.ts` for future direct calls to the Hugging Face Inference API. To configure it, create a `.env.local` file at the project root:
+Create `.env.local` at the project root:
 
 ```
-HUGGINGFACE_API_KEY=hf_...
+GEMINI_API_KEY=...
 ```
+
+`GEMINI_API_KEY` is required for `/api/analyze`. Without it the route returns a configuration error.
+
+### Optional surprisal script
+
+```bash
+# After converting a deck to PDF (same as the convert route):
+soffice --headless --convert-to pdf yourdeck.pptx
+
+python3 scripts/surprisal.py yourdeck.pdf
+python3 scripts/surprisal.py yourdeck.pdf --pretty
+```
+
+Output is JSON on stdout (per-page token counts and surprisal statistics). This script is not invoked by the Next.js analyze route and does not affect slide scores.
 
 ## Project Structure
 
 ```
 app/
-  page.tsx              Landing page
-  about/page.tsx        About and team page
-  upload/page.tsx       File upload and slide preview
-  analysis/page.tsx     Per-slide scores and aggregate metrics
+  page.tsx                 Landing page
+  about/page.tsx           About and team
+  upload/page.tsx          Upload, convert, analyse
+  analysis/page.tsx        Per-slide scores and aggregates
   api/
-    convert/route.ts    PPT/PDF to PNG conversion via soffice and pdftoppm
-    analyze/route.ts    Forwards a slide image to the inference backend
+    convert/route.ts       PPT/PDF → PNG cache via soffice and pdftoppm
+    analyze/route.ts       Gemini scoring against a Zod schema
+    slides/[deckId]/[index]/route.ts   Serve cached PNGs
 components/
-  navbar.tsx
-  upload-zone.tsx
-  ui/                   shadcn primitives (button, card, skeleton)
+  landing/                 Landing sections
+  navbar.tsx, upload-zone.tsx, …
 lib/
-  hf.ts                 Hugging Face client placeholder
-  utils.ts              Utility helpers
+  deck-cache.ts            Disk cache for deck PNGs
+  insights.ts              Schemas and fallback insight/recommendation text
+  slides.ts                Slide reference helpers
+  team.ts                  Team and supervisor metadata
+  utils.ts                 Utility helpers
+scripts/
+  surprisal.py             GPT-2 surprisal over pdftotext output
 ```
 
 ## Project Status
 
-The following components are functional end-to-end:
+Implemented end to end:
 
-- Conversion of PPT, PPTX, and PDF files into per-slide PNG images
-- Communication with the Hugging Face Space backend
-- Rendering of attention, comprehension, and cognitive-load scores
-- Aggregate averages and a per-slide breakdown view
+- Conversion of PPT, PPTX, and PDF into per-slide PNGs
+- Gemini structured scoring (attention, comprehension, cognitive load, insight, recommendations)
+- Analysis UI with aggregates and per-slide breakdown
+- Standalone GPT-2 surprisal script over extracted slide text
 
-Planned work includes:
+Unbuilt future work:
 
-- Grad-CAM heatmap overlays on each slide
-- LLM-generated, plain-language suggestions for slide improvement
-- Persistent history and user accounts (Supabase)
+- **Saliency-based fixation prediction overlays** (e.g. DeepGaze, TranSalNet), not Grad-CAM. Grad-CAM would show where the scoring model attended, which is not the same as where a human would look; a human-fixation saliency model is the appropriate direction if heatmaps are added.
+- Persistent history and user accounts
+
+## Limitations
+
+- Scores are produced by a general-purpose vision-language model and are a **proxy for visual-communication quality**, not a measurement of neural response.
+- A GPT-2 surprisal signal over extracted slide text was evaluated on five matched text-heavy / visual-rich slide pairs. Mean surprisal was higher for the visual-rich variant in all five pairs — i.e. inversely related to the intended direction — because fragmented labels are unpredictable to a language model while remaining easy for a human to scan. Total surprisal stayed roughly flat because reduced token count and increased per-token surprisal cancel. Surprisal is therefore reported only as an auxiliary text statistic and is **not used to derive any score**.
+- The system has **not yet been validated against human ratings**.
 
 ## Team
 
-| Name                    | Role                              |
-| ----------------------- | --------------------------------- |
-| Salik Yousuf Shigan     | Developer · IUST CSE 2023–27      |
-| Muizza Muayqeeb Akram   | Developer · IUST CSE 2023–27      |
-| Shakeeb Arslan Naqash   | Developer · IUST CSE 2023–27      |
+| Name                  | Role                         |
+| --------------------- | ---------------------------- |
+| Salik Yousuf Shigan   | Developer · IUST CSE 2023–27 |
+| Muizza Muayqeeb Akram | Developer · IUST CSE 2023–27 |
+| Shakeeb Arslan Naqash | Developer · IUST CSE 2023–27 |
 
-**Supervisor:** Dr. Sahil Sholla, Department of Computer Science and Engineering, Islamic University of Science and Technology, Kashmir.
+**Supervisor:** Dr. Sahil Sholla, Assistant Professor, Department of Computer Science and Engineering, Islamic University of Science and Technology, Kashmir.

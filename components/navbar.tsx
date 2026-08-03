@@ -6,14 +6,14 @@ import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
 
 const links = [
-  { label: "Product", href: "/#product" },
-  { label: "The Science", href: "/#science" },
-  { label: "How it works", href: "/#how" },
+  { label: "Overview", href: "/#product" },
+  { label: "Grounding", href: "/#science" },
+  { label: "Pipeline", href: "/#how" },
   { label: "Team", href: "/#team" },
 ];
 
 // The upload flow uses its own focused workspace chrome (see FlowHeader),
-// so the marketing navbar is suppressed there.
+// so the site navbar is suppressed there.
 const HIDDEN_ON = ["/upload", "/analysis"];
 
 export function Navbar() {
@@ -71,7 +71,7 @@ export function Navbar() {
             href="/upload"
             className="rounded-full bg-[#c7f04b] px-4 py-2 text-[13.5px] font-semibold text-[#10231a] transition hover:bg-[#d4f56b]"
           >
-            Analyze slides
+            Upload
           </Link>
         </div>
       </nav>

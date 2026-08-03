@@ -20,9 +20,9 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Percept — See how your slides land in the brain",
+  title: "Percept — Slide evaluation for visual communication quality",
   description:
-    "Percept scores your slide decks on attention, comprehension, and cognitive load using brain-trained neural models, then tells you exactly how to improve.",
+    "Percept evaluates presentation slides on attention, comprehension, and cognitive load using a vision-language model. Final-year project, IUST CSE Group 10.",
 };
 
 export default function RootLayout({

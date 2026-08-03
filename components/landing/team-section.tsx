@@ -6,14 +6,15 @@ export function TeamSection() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-12 text-center">
           <span className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#c7f04b]">
-            The builders
+            Project team
           </span>
           <h2 className="font-display mt-4 text-[34px] font-bold tracking-tight sm:text-[42px]">
-            Made by a team that had to present too
+            Group 10 · IUST CSE
           </h2>
-          <p className="mx-auto mt-4 max-w-md text-[15px] leading-relaxed text-white/50">
-            Percept began as a final-year project at IUST Kashmir, Department of
-            Computer Science &amp; Engineering.
+          <p className="mx-auto mt-4 max-w-lg text-[15px] leading-relaxed text-white/50">
+            Final-year undergraduate project, Department of Computer Science and
+            Engineering, Islamic University of Science and Technology, Kashmir.
+            Supervisor: Dr. Sahil Sholla, Assistant Professor.
           </p>
         </div>
 
@@ -44,7 +45,9 @@ export function TeamSection() {
             <p className="font-display text-[17px] font-semibold tracking-tight text-white">
               {supervisor.name}
             </p>
-            <p className="mt-0.5 text-[13px] text-[#c7f04b]">{supervisor.role}</p>
+            <p className="mt-0.5 text-[13px] text-[#c7f04b]">
+              {supervisor.role}
+            </p>
             <p className="text-[13px] text-white/40">{supervisor.department}</p>
           </div>
         </div>

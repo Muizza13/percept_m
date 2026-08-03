@@ -98,14 +98,14 @@ export default function AnalysisPage() {
             No analysis yet
           </h1>
           <p className="mt-2 text-[14px] text-white/45">
-            Upload a presentation to see how each slide lands in the brain.
+            Upload a presentation to convert slides and view Gemini scores.
           </p>
           <Link
             href="/upload"
             className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#c7f04b] px-6 py-2.5 text-[13.5px] font-semibold text-[#0a0a0a] transition hover:bg-[#d4f56b]"
           >
             <Upload className="h-4 w-4" />
-            Upload a deck
+            Go to upload
           </Link>
         </div>
       </main>

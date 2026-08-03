@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Brain, Sparkles, Upload } from "lucide-react";
+import { FileImage, Sparkles, Upload } from "lucide-react";
 
 const steps: {
   n: string;
@@ -9,20 +9,20 @@ const steps: {
 }[] = [
   {
     n: "01",
-    title: "Upload your deck",
-    desc: "Drop a .pptx, .ppt or .pdf. Percept converts every slide into a clean, analysis-ready image.",
+    title: "Convert the deck",
+    desc: "The user uploads a .ppt, .pptx, or .pdf. LibreOffice converts presentations to PDF; Poppler rasterises each page to a PNG cached under a deck identifier.",
     icon: <Upload className="h-5 w-5" />,
   },
   {
     n: "02",
-    title: "The model reads it",
-    desc: "TRIBE v2 predicts the brain's response and Grad-CAM maps exactly where attention lands.",
-    icon: <Brain className="h-5 w-5" />,
+    title: "Score each slide",
+    desc: "Each PNG is sent to Google Gemini (gemini-3.5-flash) with a Zod-derived JSON schema requesting attention, comprehension, and cognitive load.",
+    icon: <FileImage className="h-5 w-5" />,
   },
   {
     n: "03",
-    title: "Get your fixes",
-    desc: "Three cognitive scores per slide plus ranked, plain-English suggestions to improve them.",
+    title: "Explain and recommend",
+    desc: "The model returns an insight string and recommendations. Results are held in sessionStorage and shown on the analysis page.",
     icon: <Sparkles className="h-5 w-5" />,
   },
 ];
@@ -33,10 +33,10 @@ export function HowItWorks() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-14 text-center">
           <span className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#c7f04b]">
-            How it works
+            Pipeline
           </span>
           <h2 className="font-display mt-4 text-[34px] font-bold tracking-tight sm:text-[42px]">
-            From slide to brain insight in three steps
+            From upload to scored slides
           </h2>
         </div>
 

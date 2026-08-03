@@ -1,9 +1,9 @@
 import { Check } from "lucide-react";
 
 const highlights = [
-  "Trained on thousands of fMRI scan-image pairs",
-  "Predicts attention, comprehension & load per slide",
-  "Grad-CAM maps the precise focal points",
+  "Grounded in cognitive load theory (Sweller, 1988)",
+  "Informed by multimedia learning (Mayer, 2009) and dual coding (Paivio, 1991)",
+  "Scores produced by a vision-language model against a fixed JSON schema",
 ] as const;
 
 export function Science() {
@@ -16,17 +16,20 @@ export function Science() {
       <div className="relative mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-2">
         <div>
           <span className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#c7f04b]">
-            The science
+            Theoretical grounding
           </span>
           <h2 className="font-display mt-4 text-[34px] font-bold leading-tight tracking-tight sm:text-[42px]">
-            Not opinions.
+            Cognitive science literature,
             <br />
-            A model of your audience&apos;s brain.
+            applied as heuristic scores.
           </h2>
           <p className="mt-5 max-w-md text-[16px] leading-relaxed text-white/55">
-            Percept is powered by TRIBE v2, a neural encoder trained to predict
-            blood-oxygen responses across the visual cortex. When it scores a
-            slide, it is simulating how an actual brain would process it.
+            Percept does not measure neural responses. It applies a
+            general-purpose vision-language model to rendered slide images and
+            asks for structured ratings of attention, comprehension, and
+            cognitive load. The dimensions are motivated by Sweller&apos;s
+            cognitive load theory (1988), Mayer&apos;s multimedia learning
+            principles (2009), and Paivio&apos;s dual coding theory (1991).
           </p>
           <ul className="mt-8 space-y-4">
             {highlights.map((t) => (
@@ -60,40 +63,32 @@ function ScoreVisual() {
         <div className="mt-3 h-2 w-3/4 rounded-full bg-white/10" />
       </div>
 
-      <div className="mt-5 space-y-4">
-        <ScoreBar label="Attention" value={87} note="Above average" />
-        <ScoreBar label="Comprehension" value={72} note="Needs work" />
-        <ScoreBar label="Cognitive load" value={34} note="Optimal" />
+      <div className="mt-5 space-y-3">
+        <DimensionRow label="Attention" description="Focal point and visual pull" />
+        <DimensionRow
+          label="Comprehension"
+          description="Hierarchy and message clarity"
+        />
+        <DimensionRow
+          label="Cognitive load"
+          description="Density and parsing effort"
+        />
       </div>
     </div>
   );
 }
 
-function ScoreBar({
+function DimensionRow({
   label,
-  value,
-  note,
+  description,
 }: {
   label: string;
-  value: number;
-  note: string;
+  description: string;
 }) {
   return (
-    <div>
-      <div className="mb-1.5 flex items-baseline justify-between">
-        <span className="text-[13px] text-white/65">{label}</span>
-        <span className="font-display text-[15px] font-semibold text-white">
-          {value}
-          <span className="text-[11px] text-white/35">/100</span>
-        </span>
-      </div>
-      <div className="h-2 overflow-hidden rounded-full bg-white/[0.07]">
-        <div
-          className="h-full rounded-full bg-[#c7f04b]"
-          style={{ width: `${value}%` }}
-        />
-      </div>
-      <p className="mt-1 text-[11px] text-white/35">{note}</p>
+    <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3">
+      <p className="text-[13px] font-medium text-white/80">{label}</p>
+      <p className="mt-0.5 text-[12px] text-white/40">{description}</p>
     </div>
   );
 }

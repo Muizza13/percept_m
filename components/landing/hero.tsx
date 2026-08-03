@@ -18,12 +18,6 @@ export function Hero() {
       <div className="glow-lime pointer-events-none absolute left-1/2 top-24 -z-10 h-[520px] w-[820px] -translate-x-1/2" />
 
       <div className="mx-auto max-w-4xl text-center">
-        <div className="p-rise mx-auto mb-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] py-1.5 px-3 backdrop-blur">
-          <span className="text-[13px] text-white/70">
-            IUST CSE · Group 10 · Final-year project
-          </span>
-        </div>
-
         <h1 className="font-display p-rise text-[44px] font-bold leading-[1.04] tracking-tight text-white sm:text-[64px]">
           Evaluating presentation slides
           <br />

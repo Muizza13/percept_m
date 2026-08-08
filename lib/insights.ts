@@ -3,12 +3,30 @@ import { z } from "zod/v3";
 export const cognitiveLoadSchema = z.enum(["Low", "Medium", "High"]);
 export type CognitiveLoad = z.infer<typeof cognitiveLoadSchema>;
 
+export const recommendationSchema = z.object({
+  text: z.string(),
+  // Index of the colored block this refers to, top to bottom, 0-based.
+  // Use -1 when the recommendation applies to the whole slide, not one block.
+  targetBlock: z.number().int(),
+});
+
+export type Recommendation = z.infer<typeof recommendationSchema>;
+
+export const blockSchema = z.object({
+  index: z.number().int(),
+  color: z.string(), // short color name or hex, e.g. "blue", "#c9d6ea"
+  summary: z.string(), // one-line description of what's in this block
+});
+
+export type SlideBlock = z.infer<typeof blockSchema>;
+
 export const slideResultSchema = z.object({
   attention: z.number(),
   comprehension: z.number(),
   cognitiveLoad: cognitiveLoadSchema,
   insight: z.string().optional(),
-  recommendations: z.array(z.string()).optional(),
+  recommendations: z.array(recommendationSchema).optional(),
+  blocks: z.array(blockSchema).optional(),
 });
 
 export type SlideResult = z.infer<typeof slideResultSchema>;
@@ -18,7 +36,16 @@ export const slideAnalysisSchema = z.object({
   comprehension: z.number().int().min(0).max(100),
   cognitiveLoad: cognitiveLoadSchema,
   insight: z.string().min(20),
-  recommendations: z.array(z.string().min(10)).min(2).max(5),
+  blocks: z.array(
+    blockSchema.extend({
+      color: z.string().min(1),
+      summary: z.string().min(1),
+    }),
+  ),
+  recommendations: z
+    .array(recommendationSchema.extend({ text: z.string().min(10) }))
+    .min(2)
+    .max(5),
 });
 
 export function parseSlideResult(value: unknown): SlideResult | null {
@@ -33,6 +60,7 @@ export function resolveSlideContent(r: SlideResult) {
       r.recommendations && r.recommendations.length > 0
         ? r.recommendations
         : generateRecommendations(r),
+    blocks: r.blocks ?? [],
   };
 }
 
@@ -88,7 +116,7 @@ export function generateInsight(r: SlideResult): string {
   return `${attentionNote} ${comprehensionNote} ${loadNote}`;
 }
 
-export function generateRecommendations(r: SlideResult): string[] {
+export function generateRecommendations(r: SlideResult): Recommendation[] {
   const { attention, comprehension, cognitiveLoad: load } = r;
   const recs: string[] = [];
 
@@ -145,5 +173,7 @@ export function generateRecommendations(r: SlideResult): string[] {
     );
   }
 
-  return recs;
+  // Fallbacks are generated from scores alone, so we can't infer which block a
+  // recommendation targets — mark every fallback as a whole-slide (-1) note.
+  return recs.map((text) => ({ text, targetBlock: -1 }));
 }

@@ -1,14 +1,26 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Upload } from "lucide-react";
 import {
   type SlideResult,
+  type SlideBlock,
   parseSlideResult,
   resolveSlideContent,
 } from "@/lib/insights";
 import { type SlideReference, parseSlideReferences } from "@/lib/slides";
 import { FlowHeader } from "@/components/flow-header";
+
+const NEUTRAL_INDICATOR = "rgba(255,255,255,0.28)";
+
+// Resolve the color of the block a recommendation targets. Returns null for
+// whole-slide recommendations (targetBlock === -1) or when the block is missing.
+function blockColor(blocks: SlideBlock[], targetBlock: number): string | null {
+  if (targetBlock < 0) return null;
+  const block =
+    blocks.find((b) => b.index === targetBlock) ?? blocks[targetBlock];
+  return block?.color ?? null;
+}
 
 function loadStyles(load: SlideResult["cognitiveLoad"]) {
   if (load === "Low") {
@@ -30,6 +42,35 @@ export default function AnalysisPage() {
   const [results, setResults] = useState<SlideResult[]>([]);
   const [slides, setSlides] = useState<SlideReference[]>([]);
   const [active, setActive] = useState(0);
+  const [hoveredRec, setHoveredRec] = useState<number | null>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [imgBox, setImgBox] = useState<{
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+  } | null>(null);
+
+  // The slide is object-contain'd inside a flexible container, so its rendered
+  // box is letterboxed. Measure the <img> relative to its offset parent so the
+  // hover overlay can be positioned over the actual image, not the container.
+  const measureImage = useCallback(() => {
+    const el = imgRef.current;
+    if (!el) return;
+    setImgBox({
+      left: el.offsetLeft,
+      top: el.offsetTop,
+      width: el.offsetWidth,
+      height: el.offsetHeight,
+    });
+  }, []);
+
+  useEffect(() => {
+    measureImage();
+    setHoveredRec(null);
+    window.addEventListener("resize", measureImage);
+    return () => window.removeEventListener("resize", measureImage);
+  }, [measureImage, active]);
 
   useEffect(() => {
     const stored = sessionStorage.getItem("perceptResults");
@@ -113,7 +154,32 @@ export default function AnalysisPage() {
   }
 
   const current = results[active];
-  const { insight, recommendations } = resolveSlideContent(current);
+  const { insight, recommendations, blocks } = resolveSlideContent(current);
+
+  const hovered = hoveredRec !== null ? recommendations[hoveredRec] : null;
+  let overlay: {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+    color: string | null;
+  } | null = null;
+  if (hovered && imgBox) {
+    // KNOWN LIMITATION: rasterized PNGs carry no layout metadata, so we split
+    // the image into evenly-sized horizontal bands, one per block. This is only
+    // accurate for decks using the standard stacked full-width block template.
+    const count = blocks.length;
+    const wholeSlide = hovered.targetBlock < 0 || count <= 0;
+    const topFrac = wholeSlide ? 0 : hovered.targetBlock / count;
+    const heightFrac = wholeSlide ? 1 : 1 / count;
+    overlay = {
+      left: imgBox.left,
+      top: imgBox.top + topFrac * imgBox.height,
+      width: imgBox.width,
+      height: heightFrac * imgBox.height,
+      color: wholeSlide ? null : blockColor(blocks, hovered.targetBlock),
+    };
+  }
 
   return (
     <main className="font-body flex min-h-[100dvh] flex-col bg-[#0a0a0a] pt-[57px] text-white lg:h-[100dvh] lg:overflow-hidden">
@@ -186,12 +252,31 @@ export default function AnalysisPage() {
           {slides[active]?.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
+              ref={imgRef}
               src={slides[active].imageUrl}
               alt={`Slide ${active + 1}`}
+              onLoad={measureImage}
               className="max-h-full max-w-full object-contain"
             />
           ) : (
             <p className="text-[12px] text-white/20">No preview</p>
+          )}
+
+          {overlay && (
+            <div
+              aria-hidden
+              className="pointer-events-none absolute z-10 rounded-md border-2 transition-all duration-150"
+              style={{
+                left: overlay.left,
+                top: overlay.top,
+                width: overlay.width,
+                height: overlay.height,
+                borderColor: overlay.color ?? "rgba(255,255,255,0.55)",
+                backgroundColor: overlay.color
+                  ? `color-mix(in srgb, ${overlay.color} 24%, transparent)`
+                  : "rgba(255,255,255,0.10)",
+              }}
+            />
           )}
 
           <span className="absolute left-3 top-3 rounded-md bg-black/50 px-2.5 py-1 text-[11.5px] font-medium text-white/75 backdrop-blur-sm">
@@ -265,13 +350,32 @@ export default function AnalysisPage() {
             <p className="mb-2 shrink-0 text-[10.5px] font-medium uppercase tracking-[0.14em] text-white/35">
               Recommendations
             </p>
-            <div className="min-h-0 flex-1 space-y-1.5 overflow-y-auto pr-1">
-              {recommendations.map((rec, j) => (
-                <div key={j} className="flex items-start gap-2.5">
-                  <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-[#c7f04b]" />
-                  <p className="text-[12px] leading-snug text-white/50">{rec}</p>
-                </div>
-              ))}
+            <div className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1">
+              {recommendations.map((rec, j) => {
+                const color = blockColor(blocks, rec.targetBlock);
+                const isHovered = hoveredRec === j;
+                return (
+                  <div
+                    key={j}
+                    onMouseEnter={() => setHoveredRec(j)}
+                    onMouseLeave={() =>
+                      setHoveredRec((cur) => (cur === j ? null : cur))
+                    }
+                    className={`flex cursor-default items-start gap-2.5 rounded-md border-l-2 py-1 pr-1 pl-2.5 transition-colors ${
+                      isHovered ? "bg-white/[0.04]" : "hover:bg-white/[0.025]"
+                    }`}
+                    style={{ borderColor: color ?? NEUTRAL_INDICATOR }}
+                  >
+                    <span
+                      className="mt-1 h-2 w-2 shrink-0 rounded-full"
+                      style={{ backgroundColor: color ?? NEUTRAL_INDICATOR }}
+                    />
+                    <p className="text-[12px] leading-snug text-white/50">
+                      {rec.text}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </div>
 

@@ -72,6 +72,16 @@ export default function AnalysisPage() {
     return () => window.removeEventListener("resize", measureImage);
   }, [measureImage, active]);
 
+  // Different slides can render at different sizes (aspect ratio, letterboxing),
+  // so observe the image element itself to keep the overlay box in sync.
+  useEffect(() => {
+    const el = imgRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(() => measureImage());
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [measureImage, active]);
+
   useEffect(() => {
     const stored = sessionStorage.getItem("perceptResults");
     const storedSlides = sessionStorage.getItem("perceptSlides");
@@ -169,15 +179,17 @@ export default function AnalysisPage() {
     // the image into evenly-sized horizontal bands, one per block. This is only
     // accurate for decks using the standard stacked full-width block template.
     const count = blocks.length;
-    const wholeSlide = hovered.targetBlock < 0 || count <= 0;
-    const topFrac = wholeSlide ? 0 : hovered.targetBlock / count;
-    const heightFrac = wholeSlide ? 1 : 1 / count;
+    // Treat -1, "no blocks", and any out-of-range index the model may emit as a
+    // whole-slide highlight so hovering always produces visible feedback.
+    const inRange = hovered.targetBlock >= 0 && hovered.targetBlock < count;
+    const topFrac = inRange ? hovered.targetBlock / count : 0;
+    const heightFrac = inRange ? 1 / count : 1;
     overlay = {
       left: imgBox.left,
       top: imgBox.top + topFrac * imgBox.height,
       width: imgBox.width,
       height: heightFrac * imgBox.height,
-      color: wholeSlide ? null : blockColor(blocks, hovered.targetBlock),
+      color: inRange ? blockColor(blocks, hovered.targetBlock) : null,
     };
   }
 
@@ -265,16 +277,27 @@ export default function AnalysisPage() {
           {overlay && (
             <div
               aria-hidden
-              className="pointer-events-none absolute z-10 rounded-md border-2 transition-all duration-150"
+              className="pointer-events-none absolute z-10 rounded-md transition-all duration-150"
               style={{
                 left: overlay.left,
                 top: overlay.top,
                 width: overlay.width,
                 height: overlay.height,
-                borderColor: overlay.color ?? "rgba(255,255,255,0.55)",
                 backgroundColor: overlay.color
-                  ? `color-mix(in srgb, ${overlay.color} 24%, transparent)`
-                  : "rgba(255,255,255,0.10)",
+                  ? `color-mix(in srgb, ${overlay.color} 30%, transparent)`
+                  : "rgba(255,255,255,0.08)",
+                boxShadow: [
+                  // bright ring around the targeted band
+                  `inset 0 0 0 2.5px ${overlay.color ?? "rgba(255,255,255,0.95)"}`,
+                  // colored glow to draw the eye
+                  `0 0 26px 4px ${
+                    overlay.color
+                      ? `color-mix(in srgb, ${overlay.color} 65%, transparent)`
+                      : "rgba(255,255,255,0.45)"
+                  }`,
+                  // spotlight: dim everything outside the band
+                  "0 0 0 9999px rgba(0,0,0,0.5)",
+                ].join(", "),
               }}
             />
           )}
